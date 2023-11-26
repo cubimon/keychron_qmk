@@ -10,6 +10,7 @@ A customizable 68 keys TKL low profile switch keyboard.
 
 Make example for this keyboard (after setting up your build environment):
 
+    make keychron/k7_pro/ansi/rgb:cubi
     make keychron/k7_pro/ansi/rgb:default
     make keychron/k7_pro/ansi/white:default
     make keychron/k7_pro/iso/rgb:default
