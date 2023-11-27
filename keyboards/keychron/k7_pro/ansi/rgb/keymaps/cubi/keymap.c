@@ -17,9 +17,65 @@
 #include QMK_KEYBOARD_H
 
 // clang-format off
+
+// mouse speeds
+#define MOUSE_SPEED_DEFAULT 1000l
+#define MOUSE_SPEED_0 100l
+#define MOUSE_SPEED_1 500l
+#define MOUSE_SPEED_2 2000l
+
+#define MOUSE_WHEEL_SPEED_DEFAULT 30l
+#define MOUSE_WHEEL_SPEED_0 10l
+#define MOUSE_WHEEL_SPEED_1 50l
+#define MOUSE_WHEEL_SPEED_2 100l
+
+#define TIME_BETWEEN_MOVEMENT_DEFAULT 1000000l / MOUSE_SPEED_DEFAULT
+#define TIME_BETWEEN_MOVEMENT_0 1000000l / MOUSE_SPEED_0
+#define TIME_BETWEEN_MOVEMENT_1 1000000l / MOUSE_SPEED_1
+#define TIME_BETWEEN_MOVEMENT_2 1000000l / MOUSE_SPEED_2
+
+#define TIME_BETWEEN_WHEEL_MOVEMENT_DEFAULT 1000000l / MOUSE_WHEEL_SPEED_DEFAULT
+#define TIME_BETWEEN_WHEEL_MOVEMENT_0 1000000l / MOUSE_WHEEL_SPEED_0
+#define TIME_BETWEEN_WHEEL_MOVEMENT_1 1000000l / MOUSE_WHEEL_SPEED_1
+#define TIME_BETWEEN_WHEEL_MOVEMENT_2 1000000l / MOUSE_WHEEL_SPEED_2
+
+struct MouseState {
+  bool up;
+  bool down;
+  bool left;
+  bool right;
+  bool wheel_up;
+  bool wheel_down;
+  bool wheel_left;
+  bool wheel_right;
+  bool button_left;
+  bool button_right;
+  bool button_middle;
+  uint32_t time_between_movement;
+  uint32_t time_between_wheel_movement;
+  uint32_t last_movement_time;
+  uint32_t last_wheel_movement_time;
+} mouse_state = {
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  TIME_BETWEEN_MOVEMENT_DEFAULT,
+  TIME_BETWEEN_WHEEL_MOVEMENT_DEFAULT,
+  0,
+  0,
+};
+
 enum custom_keycodes {
   // mouse
-  KC_MOUSE_UP,
+  KC_MOUSE_UP = SAFE_RANGE,
   KC_MOUSE_DOWN,
   KC_MOUSE_LEFT,
   KC_MOUSE_RIGHT,
@@ -94,21 +150,28 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_TRNS,  KC_TRNS,        KC_TRNS,                                KC_TRNS,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
 [CUBI_BASE] = LAYOUT_ansi_68(
-     QK_GRAVE_ESCAPE,        KC_1,            KC_2,           KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,             KC_0,            KC_MINS,                 KC_EQL,  KC_BSPC,           KC_DEL,
-     LT(CUBI_MOUSE, KC_TAB), KC_Q,            KC_W,           KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,             KC_P,            KC_LBRC,                 KC_RBRC, KC_BSLS,           KC_HOME,
-     MO(CUBI_SYMBOL),        LALT_T(KC_A),    KC_S,           KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,             LALT_T(KC_SCLN), LT(CUBI_ARROW, KC_QUOT),          KC_ENT,            KC_PGUP,
-     LSFT_T(KC_ESC),         LCTL_T(KC_Z),    LSFT_T(KC_X),   KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  LSFT_T(KC_DOT),   LCTL_T(KC_SLSH),                                   KC_RSFT,  KC_UP,   KC_PGDN,
-     KC_LCTL, KC_LOPTN,      KC_LCMMD,                                                      KC_SPC,                                         KC_RCMMD,        MO(MAC_FN1),             MO(FN2), KC_LEFT,  KC_DOWN, KC_RGHT),
+     QK_GRAVE_ESCAPE,        KC_1,     KC_2,   KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,     KC_0,        KC_MINS,                 KC_EQL,  KC_BSPC, KC_DEL,
+     LT(CUBI_MOUSE, KC_TAB), KC_Q,     KC_W,   KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,        KC_LBRC,                 KC_RBRC, KC_BSLS, KC_HOME,
+     MO(CUBI_SYMBOL),        KC_A,     KC_S,   KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,     LT(CUBI_ARROW, KC_QUOT),          KC_ENT,  KC_PGUP,
+     LSFT_T(KC_ESC),         KC_Z,     KC_X,   KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,                              KC_RSFT, KC_UP,   KC_PGDN,
+     KC_LCTL, KC_LOPTN,      KC_LCMMD,                             KC_SPC,                                 KC_RCMMD, MO(MAC_FN1), MO(FN2),                 KC_LEFT, KC_DOWN, KC_RGHT),
+
+// [CUBI_BASE] = LAYOUT_ansi_68(
+//      QK_GRAVE_ESCAPE,        KC_1,            KC_2,           KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,             KC_0,            KC_MINS,                 KC_EQL,  KC_BSPC,           KC_DEL,
+//      LT(CUBI_MOUSE, KC_TAB), KC_Q,            KC_W,           KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,             KC_P,            KC_LBRC,                 KC_RBRC, KC_BSLS,           KC_HOME,
+//      MO(CUBI_SYMBOL),        LALT_T(KC_A),    KC_S,           KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,             LALT_T(KC_SCLN), LT(CUBI_ARROW, KC_QUOT),          KC_ENT,            KC_PGUP,
+//      LSFT_T(KC_ESC),         LCTL_T(KC_Z),    LSFT_T(KC_X),   KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  LSFT_T(KC_DOT),   LCTL_T(KC_SLSH),                                   KC_RSFT,  KC_UP,   KC_PGDN,
+//      KC_LCTL, KC_LOPTN,      KC_LCMMD,                                                      KC_SPC,                                         KC_RCMMD,        MO(MAC_FN1),             MO(FN2), KC_LEFT,  KC_DOWN, KC_RGHT),
 
 [CUBI_ARROW] = LAYOUT_ansi_68(
      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_BSPC,  KC_UP,    KC_DEL,    KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_PGUP,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_LEFT,  KC_DOWN,  KC_RIGHT,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_HOME,  KC_PGDN,  KC_END,   KC_TRNS,            KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_BSPC,  KC_UP,    KC_DEL,    KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_PGUP,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_LEFT,  KC_DOWN,  KC_RIGHT,  KC_TRNS,  KC_TRNS,  KC_HOME,  KC_PGDN,  KC_END,   KC_TRNS,  KC_TRNS,            KC_TRNS,            KC_TRNS,
      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,
      KC_TRNS,  KC_TRNS,  KC_TRNS,                                 KC_TRNS,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
 [CUBI_MOUSE] = LAYOUT_ansi_68(
-     KC_TRNS,  KC_TRNS,  KC_TRNS,              KC_TRNS,              KC_TRNS,               KC_TRNS,  KC_TRNS,  KC_TRNS,          KC_MOUSE_UP,      KC_TRNS,          KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_TRNS,              KC_MOUSE_WHEEL_UP,    KC_TRNS,               KC_TRNS,  KC_TRNS,  KC_TRNS,          KC_MOUSE_UP,      KC_TRNS,          KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
      KC_TRNS,  KC_TRNS,  KC_MOUSE_WHEEL_LEFT,  KC_MOUSE_WHEEL_DOWN,  KC_MOUSE_WHEEL_RIGHT,  KC_TRNS,  KC_TRNS,  KC_MOUSE_LEFT,    KC_MOUSE_DOWN,    KC_MOUSE_RIGHT,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
      KC_TRNS,  KC_TRNS,  KC_MOUSE_SPEED_0,     KC_MOUSE_SPEED_1,     KC_MOUSE_SPEED_2,      KC_TRNS,  KC_TRNS,  KC_MOUSE_SPEED_0, KC_MOUSE_SPEED_1, KC_MOUSE_SPEED_2, KC_TRNS,  KC_TRNS,            KC_TRNS,            KC_TRNS,
      KC_TRNS,  KC_TRNS,  KC_TRNS,              KC_TRNS,              KC_TRNS,               KC_TRNS,  KC_TRNS,  KC_TRNS,          KC_TRNS,          KC_TRNS,          KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,
@@ -116,15 +179,168 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [CUBI_SYMBOL] = LAYOUT_ansi_68(
      KC_TRNS,  KC_TRNS,           KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,           KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_KP_7,  KC_KP_8,  KC_KP_9,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  MO(CUBI_FUNCTION), KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_KP_4,  KC_KP_5,  KC_KP_6,  KC_TRNS,            KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,           KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_KP_1,  KC_KP_2,  KC_KP_3,                      KC_TRNS,  KC_TRNS,  KC_TRNS,
+     KC_TRNS,  KC_TRNS,           KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_KP_7,  KC_KP_8,  KC_KP_9,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+     KC_TRNS,  MO(CUBI_FUNCTION), KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_KP_4,  KC_KP_5,  KC_KP_6,  KC_TRNS,  KC_TRNS,            KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,           KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_KP_1,  KC_KP_2,  KC_KP_3,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,
      KC_TRNS,  KC_TRNS,           KC_TRNS,                               KC_TRNS,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
 [CUBI_FUNCTION] = LAYOUT_ansi_68(
-     KC_TRNS,  KC_TRNS,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_F19,  KC_F20,  KC_F21,  KC_F24,  KC_TRNS,  KC_TRNS,  KC_F7,   KC_F8,   KC_F9,   KC_TRNS, KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_F16,  KC_F17,  KC_F18,  KC_F23,  KC_TRNS,  KC_TRNS,  KC_F4,   KC_F5,   KC_F6,   KC_TRNS,           KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_F13,  KC_F14,  KC_F15,  KC_F22,  KC_TRNS,  KC_TRNS,  KC_F1,   KC_F2,   KC_F3,                      KC_TRNS,  KC_TRNS,  KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_TRNS,                            KC_TRNS,                              KC_TRNS, KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
+     KC_TRNS,  KC_TRNS,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,          KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_F19,  KC_F20,  KC_F21,  KC_F24,  KC_TRNS,  KC_F7,    KC_F8,   KC_F9,   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,          KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_F16,  KC_F17,  KC_F18,  KC_F23,  KC_TRNS,  KC_F4,    KC_F5,   KC_F6,   KC_TRNS, KC_TRNS,          KC_TRNS,          KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_F13,  KC_F14,  KC_F15,  KC_F22,  KC_TRNS,  KC_F1,    KC_F2,   KC_F3,   KC_TRNS,                   KC_TRNS, KC_TRNS, KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_TRNS,                            KC_TRNS,                              KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS),
 };
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  /*if (!process_record_dynamic_macro(keycode, record)) {
+    return false;
+  }*/
+
+  // reset time for mouse
+  if (keycode >= KC_MOUSE_UP && keycode <= KC_MOUSE_RIGHT) {
+    if (!mouse_state.up && !mouse_state.down && !mouse_state.left && !mouse_state.right) {
+      mouse_state.last_movement_time = timer_read32();
+    }
+  }
+  if (keycode >= KC_MOUSE_WHEEL_UP && keycode <= KC_MOUSE_WHEEL_RIGHT) {
+    if (!mouse_state.wheel_up && !mouse_state.wheel_down && !mouse_state.wheel_left && !mouse_state.wheel_right) {
+      mouse_state.last_wheel_movement_time = timer_read32();
+    }
+  }
+
+  // number of pressed speed buttons
+  static int mouse_speed_buttons_pressed = 0;
+
+  switch (keycode) {
+    case KC_MOUSE_UP:
+      mouse_state.up = record->event.pressed;
+      break;
+    case KC_MOUSE_DOWN:
+      mouse_state.down = record->event.pressed;
+      break;
+    case KC_MOUSE_LEFT:
+      mouse_state.left = record->event.pressed;
+      break;
+    case KC_MOUSE_RIGHT:
+      mouse_state.right = record->event.pressed;
+      break;
+    case KC_MOUSE_WHEEL_UP:
+      mouse_state.wheel_up = record->event.pressed;
+      break;
+    case KC_MOUSE_WHEEL_DOWN:
+      mouse_state.wheel_down = record->event.pressed;
+      break;
+    case KC_MOUSE_WHEEL_LEFT:
+      mouse_state.wheel_left = record->event.pressed;
+      break;
+    case KC_MOUSE_WHEEL_RIGHT:
+      mouse_state.wheel_right = record->event.pressed;
+      break;
+    case KC_MOUSE_BUTTON_LEFT:
+      mouse_state.button_left = record->event.pressed;
+      break;
+    case KC_MOUSE_BUTTON_RIGHT:
+      mouse_state.button_right = record->event.pressed;
+      break;
+    case KC_MOUSE_BUTTON_MIDDLE:
+      mouse_state.button_middle = record->event.pressed;
+      break;
+    case KC_MOUSE_SPEED_0:
+      if (record->event.pressed) {
+        mouse_state.time_between_movement = TIME_BETWEEN_MOVEMENT_0;
+        mouse_state.time_between_wheel_movement = TIME_BETWEEN_WHEEL_MOVEMENT_0;
+        mouse_speed_buttons_pressed++;
+      } else {
+        mouse_speed_buttons_pressed--;
+      }
+      break;
+    case KC_MOUSE_SPEED_1:
+      if (record->event.pressed) {
+        mouse_state.time_between_movement = TIME_BETWEEN_MOVEMENT_1;
+        mouse_state.time_between_wheel_movement = TIME_BETWEEN_WHEEL_MOVEMENT_1;
+        mouse_speed_buttons_pressed++;
+      } else {
+        mouse_speed_buttons_pressed--;
+      }
+      break;
+    case KC_MOUSE_SPEED_2:
+      if (record->event.pressed) {
+        mouse_state.time_between_movement = TIME_BETWEEN_MOVEMENT_2;
+        mouse_state.time_between_wheel_movement = TIME_BETWEEN_WHEEL_MOVEMENT_2;
+        mouse_speed_buttons_pressed++;
+      } else {
+        mouse_speed_buttons_pressed--;
+      }
+      break;
+  }
+
+  // reset mouse speed to default if no speed button is pressed
+  if (mouse_speed_buttons_pressed == 0) {
+    mouse_state.time_between_movement = TIME_BETWEEN_MOVEMENT_DEFAULT;
+    mouse_state.time_between_wheel_movement = TIME_BETWEEN_WHEEL_MOVEMENT_DEFAULT;
+  }
+
+  return true;
+}
+
+// Runs constantly in the background, in a loop.
+void matrix_scan_user() {
+  uint32_t now = timer_read32();
+  report_mouse_t mouseReport = pointing_device_get_report();
+
+  // mouse movement
+  uint32_t movement_steps = 0;
+  if (mouse_state.up || mouse_state.down || mouse_state.left || mouse_state.right) {
+    uint32_t time_diff_movement = TIMER_DIFF_32(now, mouse_state.last_movement_time);
+    movement_steps = (time_diff_movement * 1000l) / mouse_state.time_between_movement;
+    mouse_state.last_movement_time += (movement_steps * mouse_state.time_between_movement) / 1000l;
+  }
+  if (movement_steps > 127) movement_steps = 127;
+  if (mouse_state.up) {
+    mouseReport.y = -movement_steps;
+  } else if (mouse_state.down) {
+    mouseReport.y = movement_steps;
+  }
+  if (mouse_state.left) {
+    mouseReport.x = -movement_steps;
+  } else if (mouse_state.right) {
+    mouseReport.x = movement_steps;
+  }
+  // mouse wheel movement
+  uint32_t wheel_movement_steps = 0;
+  if (mouse_state.wheel_up || mouse_state.wheel_down || mouse_state.wheel_left || mouse_state.wheel_right) {
+    uint32_t time_diff_wheel_movement = TIMER_DIFF_32(now, mouse_state.last_wheel_movement_time);
+    wheel_movement_steps = (time_diff_wheel_movement * 1000l) / mouse_state.time_between_wheel_movement;
+    mouse_state.last_wheel_movement_time += (wheel_movement_steps * mouse_state.time_between_wheel_movement) / 1000l;
+  }
+  if (wheel_movement_steps > 127) wheel_movement_steps = 127;
+  if (mouse_state.wheel_up) {
+    mouseReport.v = wheel_movement_steps;
+  } else if (mouse_state.wheel_down) {
+    mouseReport.v = -wheel_movement_steps;
+  }
+  if (mouse_state.wheel_left) {
+    mouseReport.h = -wheel_movement_steps;
+  } else if (mouse_state.wheel_right) {
+    mouseReport.h = wheel_movement_steps;
+  }
+  // buttons
+  if (mouse_state.button_left) {
+    mouseReport.buttons |= MOUSE_BTN2;
+  } else {
+    mouseReport.buttons &= ~MOUSE_BTN2;
+  }
+  if (mouse_state.button_right) {
+    mouseReport.buttons |= MOUSE_BTN1;
+  } else {
+    mouseReport.buttons &= ~MOUSE_BTN1;
+  }
+  if (mouse_state.button_middle) {
+    mouseReport.buttons |= MOUSE_BTN3;
+  } else {
+    mouseReport.buttons &= ~MOUSE_BTN3;
+  }
+
+  pointing_device_set_report(mouseReport);
+}
