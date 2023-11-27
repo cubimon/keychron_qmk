@@ -18,6 +18,7 @@ Make example for this keyboard (after setting up your build environment):
 
 Flashing example for this keyboard:
 
+    make keychron/k7_pro/ansi/rgb:cubi:flash
     make keychron/k7_pro/ansi/rgb:default:flash
     make keychron/k7_pro/ansi/white:default:flash
     make keychron/k7_pro/ansi/iso:default:flash
