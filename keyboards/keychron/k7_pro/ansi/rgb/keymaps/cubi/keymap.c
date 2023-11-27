@@ -75,7 +75,9 @@ struct MouseState {
 
 enum custom_keycodes {
   // mouse
-  KC_MOUSE_UP = SAFE_RANGE,
+  // TODO: somehow this isn't safe, so we just add some random offset 512
+  // this should be fine since it is two bytes/up to 65k
+  KC_MOUSE_UP = SAFE_RANGE + 512,
   KC_MOUSE_DOWN,
   KC_MOUSE_LEFT,
   KC_MOUSE_RIGHT,
@@ -165,17 +167,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [CUBI_ARROW] = LAYOUT_ansi_68(
      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_BSPC,  KC_UP,    KC_DEL,    KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_PGUP,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_LEFT,  KC_DOWN,  KC_RIGHT,  KC_TRNS,  KC_TRNS,  KC_HOME,  KC_PGDN,  KC_END,   KC_TRNS,  KC_TRNS,            KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_TRNS,                                 KC_TRNS,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
+     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_PGUP,  KC_TRNS,   KC_TRNS,  KC_TRNS,  KC_BSPC,  KC_UP,    KC_DEL,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_HOME,  KC_PGDN,  KC_END,    KC_TRNS,  KC_TRNS,  KC_LEFT,  KC_DOWN,  KC_RIGHT, KC_TRNS,  KC_TRNS,            KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_LCTL,  KC_TRNS,  KC_TRNS,  KC_TRNS,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_TRNS,                                 KC_LSFT,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
 [CUBI_MOUSE] = LAYOUT_ansi_68(
-     KC_TRNS,  KC_TRNS,  KC_TRNS,              KC_MOUSE_WHEEL_UP,    KC_TRNS,               KC_TRNS,  KC_TRNS,  KC_TRNS,          KC_MOUSE_UP,      KC_TRNS,          KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_MOUSE_WHEEL_LEFT,  KC_MOUSE_WHEEL_DOWN,  KC_MOUSE_WHEEL_RIGHT,  KC_TRNS,  KC_TRNS,  KC_MOUSE_LEFT,    KC_MOUSE_DOWN,    KC_MOUSE_RIGHT,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_MOUSE_SPEED_0,     KC_MOUSE_SPEED_1,     KC_MOUSE_SPEED_2,      KC_TRNS,  KC_TRNS,  KC_MOUSE_SPEED_0, KC_MOUSE_SPEED_1, KC_MOUSE_SPEED_2, KC_TRNS,  KC_TRNS,            KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_TRNS,              KC_TRNS,              KC_TRNS,               KC_TRNS,  KC_TRNS,  KC_TRNS,          KC_TRNS,          KC_TRNS,          KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_TRNS,                                                                     KC_TRNS,                                                        KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
+     KC_TRNS,  KC_TRNS,  KC_TRNS,              KC_MOUSE_WHEEL_UP,    KC_TRNS,               KC_TRNS,  KC_TRNS,               KC_TRNS,          KC_MOUSE_UP,      KC_TRNS,          KC_TRNS,                 KC_TRNS,                KC_TRNS,  KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_MOUSE_WHEEL_LEFT,  KC_MOUSE_WHEEL_DOWN,  KC_MOUSE_WHEEL_RIGHT,  KC_TRNS,  KC_TRNS,               KC_MOUSE_LEFT,    KC_MOUSE_DOWN,    KC_MOUSE_RIGHT,   KC_MOUSE_BUTTON_MIDDLE,  KC_MOUSE_BUTTON_RIGHT,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_MOUSE_SPEED_0,     KC_MOUSE_SPEED_1,     KC_MOUSE_SPEED_2,      KC_TRNS,  KC_TRNS,               KC_MOUSE_SPEED_0, KC_MOUSE_SPEED_1, KC_MOUSE_SPEED_2, KC_TRNS,                 KC_TRNS,                          KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_TRNS,              KC_TRNS,              KC_TRNS,               KC_TRNS,  KC_TRNS,               KC_TRNS,          KC_TRNS,          KC_TRNS,          KC_TRNS,                                                   KC_TRNS,  KC_TRNS,  KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_TRNS,                                                                     KC_MOUSE_BUTTON_LEFT,                                                        KC_TRNS,                 KC_TRNS,                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
 [CUBI_SYMBOL] = LAYOUT_ansi_68(
      KC_TRNS,  KC_TRNS,           KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
@@ -237,11 +239,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case KC_MOUSE_WHEEL_RIGHT:
       mouse_state.wheel_right = record->event.pressed;
       break;
+    // TODO: somehow left and right are mixed
     case KC_MOUSE_BUTTON_LEFT:
-      mouse_state.button_left = record->event.pressed;
+      mouse_state.button_right = record->event.pressed;
       break;
     case KC_MOUSE_BUTTON_RIGHT:
-      mouse_state.button_right = record->event.pressed;
+      mouse_state.button_left = record->event.pressed;
       break;
     case KC_MOUSE_BUTTON_MIDDLE:
       mouse_state.button_middle = record->event.pressed;
