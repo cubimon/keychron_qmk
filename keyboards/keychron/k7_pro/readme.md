@@ -28,6 +28,9 @@ Flashing example for this keyboard:
 
 See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_tools) and the [make instructions](https://docs.qmk.fm/#/getting_started_make_guide) for more information. Brand new to QMK? Start with our [Complete Newbs Guide](https://docs.qmk.fm/#/newbs).
 
+qmk doctor
+-> copy udev rules and restart
+
 make keychron/k7_pro/ansi/rgb:cubi
 make keychron/k7_pro/ansi/rgb:cubi:flash
 git push cubi bluetooth_playground:master
