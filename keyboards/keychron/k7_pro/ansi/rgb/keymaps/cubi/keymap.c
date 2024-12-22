@@ -18,6 +18,27 @@
 
 // clang-format off
 
+// mouse speeds
+#define MOUSE_SPEED_DEFAULT 1000l
+#define MOUSE_SPEED_0 100l
+#define MOUSE_SPEED_1 500l
+#define MOUSE_SPEED_2 2000l
+
+#define MOUSE_WHEEL_SPEED_DEFAULT 30l
+#define MOUSE_WHEEL_SPEED_0 10l
+#define MOUSE_WHEEL_SPEED_1 50l
+#define MOUSE_WHEEL_SPEED_2 100l
+
+#define TIME_BETWEEN_MOVEMENT_DEFAULT 1000000l / MOUSE_SPEED_DEFAULT
+#define TIME_BETWEEN_MOVEMENT_0 1000000l / MOUSE_SPEED_0
+#define TIME_BETWEEN_MOVEMENT_1 1000000l / MOUSE_SPEED_1
+#define TIME_BETWEEN_MOVEMENT_2 1000000l / MOUSE_SPEED_2
+
+#define TIME_BETWEEN_WHEEL_MOVEMENT_DEFAULT 1000000l / MOUSE_WHEEL_SPEED_DEFAULT
+#define TIME_BETWEEN_WHEEL_MOVEMENT_0 1000000l / MOUSE_WHEEL_SPEED_0
+#define TIME_BETWEEN_WHEEL_MOVEMENT_1 1000000l / MOUSE_WHEEL_SPEED_1
+#define TIME_BETWEEN_WHEEL_MOVEMENT_2 1000000l / MOUSE_WHEEL_SPEED_2
+
 struct MouseState {
   bool up;
   bool down;
@@ -30,9 +51,11 @@ struct MouseState {
   bool button_left;
   bool button_right;
   bool button_middle;
-  uint8_t speed;
-};
-struct MouseState mouse_state = {
+  uint32_t time_between_movement;
+  uint32_t time_between_wheel_movement;
+  uint32_t last_movement_time;
+  uint32_t last_wheel_movement_time;
+} mouse_state = {
   false,
   false,
   false,
@@ -44,13 +67,11 @@ struct MouseState mouse_state = {
   false,
   false,
   false,
+  TIME_BETWEEN_MOVEMENT_DEFAULT,
+  TIME_BETWEEN_WHEEL_MOVEMENT_DEFAULT,
+  0,
   0,
 };
-
-int16_t mouseMoveXGoal = 0;
-int16_t mouseMoveYGoal = 0;
-int16_t mouseScrollXGoal = 0;
-int16_t mouseScrollYGoal = 0;
 
 enum custom_keycodes {
   // mouse
@@ -178,6 +199,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return false;
   }*/
 
+  // reset time for mouse
+  if (keycode >= KC_MOUSE_UP && keycode <= KC_MOUSE_RIGHT) {
+    if (!mouse_state.up && !mouse_state.down && !mouse_state.left && !mouse_state.right) {
+      mouse_state.last_movement_time = timer_read32();
+    }
+  }
+  if (keycode >= KC_MOUSE_WHEEL_UP && keycode <= KC_MOUSE_WHEEL_RIGHT) {
+    if (!mouse_state.wheel_up && !mouse_state.wheel_down && !mouse_state.wheel_left && !mouse_state.wheel_right) {
+      mouse_state.last_wheel_movement_time = timer_read32();
+    }
+  }
+
+  // number of pressed speed buttons
+  static int mouse_speed_buttons_pressed = 0;
+
   switch (keycode) {
     case KC_MOUSE_UP:
       mouse_state.up = record->event.pressed;
@@ -215,25 +251,37 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
     case KC_MOUSE_SPEED_0:
       if (record->event.pressed) {
-        mouse_state.speed |= 1;
+        mouse_state.time_between_movement = TIME_BETWEEN_MOVEMENT_0;
+        mouse_state.time_between_wheel_movement = TIME_BETWEEN_WHEEL_MOVEMENT_0;
+        mouse_speed_buttons_pressed++;
       } else {
-        mouse_state.speed &= ~1;
+        mouse_speed_buttons_pressed--;
       }
       break;
     case KC_MOUSE_SPEED_1:
       if (record->event.pressed) {
-        mouse_state.speed |= 2;
+        mouse_state.time_between_movement = TIME_BETWEEN_MOVEMENT_1;
+        mouse_state.time_between_wheel_movement = TIME_BETWEEN_WHEEL_MOVEMENT_1;
+        mouse_speed_buttons_pressed++;
       } else {
-        mouse_state.speed &= ~2;
+        mouse_speed_buttons_pressed--;
       }
       break;
     case KC_MOUSE_SPEED_2:
       if (record->event.pressed) {
-        mouse_state.speed |= 4;
+        mouse_state.time_between_movement = TIME_BETWEEN_MOVEMENT_2;
+        mouse_state.time_between_wheel_movement = TIME_BETWEEN_WHEEL_MOVEMENT_2;
+        mouse_speed_buttons_pressed++;
       } else {
-        mouse_state.speed &= ~4;
+        mouse_speed_buttons_pressed--;
       }
       break;
+  }
+
+  // reset mouse speed to default if no speed button is pressed
+  if (mouse_speed_buttons_pressed == 0) {
+    mouse_state.time_between_movement = TIME_BETWEEN_MOVEMENT_DEFAULT;
+    mouse_state.time_between_wheel_movement = TIME_BETWEEN_WHEEL_MOVEMENT_DEFAULT;
   }
 
   return true;
@@ -241,95 +289,44 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 // Runs constantly in the background, in a loop.
 void matrix_scan_user() {
+  uint32_t now = timer_read32();
   report_mouse_t mouseReport = pointing_device_get_report();
 
   // mouse movement
-  int16_t stepSize = 10;
-  if (mouse_state.speed & 4) {
-    stepSize = 512;
-  } else if (mouse_state.speed & 2) {
-    stepSize = 256;
-  } else if (mouse_state.speed & 1) {
-    stepSize = 32;
+  uint32_t movement_steps = 0;
+  if (mouse_state.up || mouse_state.down || mouse_state.left || mouse_state.right) {
+    uint32_t time_diff_movement = TIMER_DIFF_32(now, mouse_state.last_movement_time);
+    movement_steps = (time_diff_movement * 1000l) / mouse_state.time_between_movement;
+    mouse_state.last_movement_time += (movement_steps * mouse_state.time_between_movement) / 1000l;
+  }
+  if (movement_steps > 127) movement_steps = 127;
+  if (mouse_state.up) {
+    mouseReport.y = -movement_steps;
+  } else if (mouse_state.down) {
+    mouseReport.y = movement_steps;
   }
   if (mouse_state.left) {
-    mouseMoveXGoal -= stepSize;
-    mouse_state.left = 0;
+    mouseReport.x = -movement_steps;
   } else if (mouse_state.right) {
-    mouseMoveXGoal += stepSize;
-    mouse_state.right = 0;
-  }
-  if (mouse_state.up) {
-    mouseMoveYGoal -= stepSize;
-    mouse_state.up = 0;
-  } else if (mouse_state.down) {
-    mouseMoveYGoal += stepSize;
-    mouse_state.down = 0;
-  }
-  if (mouseMoveXGoal > 0) {
-    if (mouseMoveXGoal > 127) {
-        mouseReport.x = 127;
-        mouseMoveXGoal -= 127;
-    } else {
-        mouseReport.x = mouseMoveXGoal;
-        mouseMoveXGoal = 0;
-    }
-  } else if (mouseMoveXGoal < 0) {
-    if (mouseMoveXGoal < -127) {
-        mouseReport.x = -127;
-        mouseMoveXGoal += 127;
-    } else {
-        mouseReport.x = mouseMoveXGoal;
-        mouseMoveXGoal = 0;
-    }
-  } else {
-    mouseReport.x = 0;
-  }
-  if (mouseMoveYGoal > 0) {
-    if (mouseMoveYGoal > 127) {
-        mouseReport.y = 127;
-        mouseMoveYGoal -= 127;
-    } else {
-        mouseReport.y = mouseMoveYGoal;
-        mouseMoveYGoal = 0;
-    }
-  } else if (mouseMoveYGoal < 0) {
-    if (mouseMoveYGoal < -127) {
-        mouseReport.y = -127;
-        mouseMoveYGoal += 127;
-    } else {
-        mouseReport.y = mouseMoveYGoal;
-        mouseMoveYGoal = 0;
-    }
-  } else {
-    mouseReport.y = 0;
+    mouseReport.x = movement_steps;
   }
   // mouse wheel movement
-  stepSize = 1;
-  if (mouse_state.speed & 4) {
-    stepSize = 32;
-  } else if (mouse_state.speed & 2) {
-    stepSize = 16;
-  } else if (mouse_state.speed & 1) {
-    stepSize = 8;
+  uint32_t wheel_movement_steps = 0;
+  if (mouse_state.wheel_up || mouse_state.wheel_down || mouse_state.wheel_left || mouse_state.wheel_right) {
+    uint32_t time_diff_wheel_movement = TIMER_DIFF_32(now, mouse_state.last_wheel_movement_time);
+    wheel_movement_steps = (time_diff_wheel_movement * 1000l) / mouse_state.time_between_wheel_movement;
+    mouse_state.last_wheel_movement_time += (wheel_movement_steps * mouse_state.time_between_wheel_movement) / 1000l;
   }
+  if (wheel_movement_steps > 127) wheel_movement_steps = 127;
   if (mouse_state.wheel_up) {
-    mouseReport.v = stepSize;
-    mouse_state.wheel_up = 0;
+    mouseReport.v = wheel_movement_steps;
   } else if (mouse_state.wheel_down) {
-    mouseReport.v = -stepSize;
-    mouse_state.wheel_down = 0;
-  } else {
-    mouseReport.v = 0;
+    mouseReport.v = -wheel_movement_steps;
   }
   if (mouse_state.wheel_left) {
-    mouseReport.h = -stepSize;
-    mouse_state.wheel_left = 0;
+    mouseReport.h = -wheel_movement_steps;
   } else if (mouse_state.wheel_right) {
-    mouseReport.h = stepSize;
-    mouse_state.wheel_right = 0;
-  } else {
-    mouseReport.h = 0;
+    mouseReport.h = wheel_movement_steps;
   }
   // buttons
   if (mouse_state.button_left) {
