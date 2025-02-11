@@ -94,6 +94,15 @@ enum custom_keycodes {
   KC_MOUSE_SPEED_2,
   KC_MOUSE_SPEED_3,
   KC_WIN_PW,
+  KC_AUML, // ä
+  KC_OUML, // ö
+  KC_UUML, // ü
+  KC_SSS, // ß
+  UC_EURO, // €
+};
+
+const uint32_t PROGMEM unicode_map[] = {
+    [UC_EURO] = 0x20AC, // €
 };
 
 enum layers{
@@ -175,18 +184,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_TRNS,  KC_TRNS,  KC_TRNS,                                 KC_LCTL,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
 [CUBI_MOUSE] = LAYOUT_ansi_68(
-     KC_TRNS,  KC_TRNS,  KC_TRNS,              KC_MOUSE_WHEEL_UP,    KC_TRNS,               KC_TRNS,  KC_TRNS,               KC_TRNS,          KC_MOUSE_UP,      KC_TRNS,          KC_TRNS,                 KC_TRNS,                KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_MOUSE_WHEEL_LEFT,  KC_MOUSE_WHEEL_DOWN,  KC_MOUSE_WHEEL_RIGHT,  KC_TRNS,  KC_TRNS,               KC_MOUSE_LEFT,    KC_MOUSE_DOWN,    KC_MOUSE_RIGHT,   KC_MOUSE_BUTTON_MIDDLE,  KC_MOUSE_BUTTON_RIGHT,  KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_MOUSE_SPEED_0,     KC_MOUSE_SPEED_1,     KC_MOUSE_SPEED_2,      KC_TRNS,  KC_TRNS,               KC_MOUSE_SPEED_0, KC_MOUSE_SPEED_1, KC_MOUSE_SPEED_2, KC_TRNS,                 KC_TRNS,                          KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_TRNS,              KC_TRNS,              KC_TRNS,               KC_TRNS,  KC_TRNS,               KC_TRNS,          KC_TRNS,          KC_TRNS,          KC_TRNS,                                                   KC_TRNS,  KC_TRNS,  KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_TRNS,                                                                     KC_MOUSE_BUTTON_LEFT,                                                        KC_TRNS,                 KC_TRNS,                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
+     KC_TRNS,  KC_TRNS,  KC_TRNS,              KC_MOUSE_WHEEL_UP,    KC_TRNS,               KC_TRNS,  KC_TRNS,                KC_TRNS,          KC_MOUSE_UP,      KC_TRNS,          KC_TRNS,                KC_SSS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_MOUSE_WHEEL_LEFT,  KC_MOUSE_WHEEL_DOWN,  KC_MOUSE_WHEEL_RIGHT,  KC_TRNS,  KC_MOUSE_BUTTON_MIDDLE, KC_MOUSE_LEFT,    KC_MOUSE_DOWN,    KC_MOUSE_RIGHT,   KC_MOUSE_BUTTON_RIGHT,  KC_UUML, KC_TRNS,  KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_MOUSE_SPEED_0,     KC_MOUSE_SPEED_1,     KC_MOUSE_SPEED_2,      KC_TRNS,  KC_TRNS,                KC_MOUSE_SPEED_0, KC_MOUSE_SPEED_1, KC_MOUSE_SPEED_2, KC_OUML,                KC_AUML,           KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_TRNS,              KC_TRNS,              KC_TRNS,               KC_TRNS,  KC_TRNS,                KC_TRNS,          KC_TRNS,          KC_TRNS,          KC_TRNS,                                   KC_TRNS,  KC_TRNS,  KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_TRNS,                                                                     KC_MOUSE_BUTTON_LEFT,                                                         KC_TRNS,                KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
 [CUBI_SYMBOL] = LAYOUT_ansi_68(
-     KC_TRNS,  KC_TRNS,           KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_NUM,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,           KC_KP_7,  KC_KP_8,  KC_KP_9, KC_TRNS,  KC_TRNS,  KC_KP_7,  KC_KP_8,  KC_KP_9,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  MO(CUBI_FUNCTION), KC_KP_4,  KC_KP_5,  KC_KP_6, KC_KP_0,  KC_TRNS,  KC_KP_4,  KC_KP_5,  KC_KP_6,  KC_KP_0,  KC_TRNS,            KC_PSCR,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,           KC_KP_1,  KC_KP_2,  KC_KP_3, KC_TRNS,  KC_TRNS,  KC_KP_1,  KC_KP_2,  KC_KP_3,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,
-     KC_TRNS,  KC_TRNS,           KC_TRNS,                               KC_LCTL,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
+     KC_TRNS,  QK_UNICODE_MODE_MACOS,           QK_UNICODE_MODE_LINUX, QK_UNICODE_MODE_WINDOWS,  QK_UNICODE_MODE_WINCOMPOSE,  KC_TRNS,  KC_TRNS,  KC_NUM,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,                         KC_KP_7,               KC_KP_8,                  KC_KP_9,                     KC_TRNS,  KC_TRNS,  KC_KP_7,  KC_KP_8,  KC_KP_9,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+     KC_TRNS,  MO(CUBI_FUNCTION),               KC_KP_4,               KC_KP_5,                  KC_KP_6,                     KC_KP_0,  KC_TRNS,  KC_KP_4,  KC_KP_5,  KC_KP_6,  KC_KP_0,  KC_TRNS,            KC_PSCR,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,                         KC_KP_1,               KC_KP_2,                  KC_KP_3,                     KC_TRNS,  KC_TRNS,  KC_KP_1,  KC_KP_2,  KC_KP_3,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,
+     KC_TRNS,  KC_TRNS,                         KC_TRNS,                                                                                KC_LCTL,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
 [CUBI_FUNCTION] = LAYOUT_ansi_68(
      KC_TRNS,  KC_TRNS,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,          KC_TRNS,
@@ -283,6 +292,47 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         SEND_STRING(WIN_PW);
       }
       break;
+      case KC_AUML:
+    if (record->event.pressed) {
+        if (keyboard_report->mods & MOD_BIT(KC_LSFT) ||
+            keyboard_report->mods & MOD_BIT(KC_RSFT)) {
+          send_unicode_string("Ä");
+        } else {
+          send_unicode_string("ä");
+        }
+      }
+      return false;
+    case KC_OUML:
+      if (record->event.pressed) {
+        if (keyboard_report->mods & MOD_BIT(KC_LSFT) ||
+            keyboard_report->mods & MOD_BIT(KC_RSFT)) {
+          send_unicode_string("Ö");
+        } else {
+          send_unicode_string("ö");
+        }
+      }
+      return false;
+    case KC_UUML:
+      if (record->event.pressed) {
+        if (keyboard_report->mods & MOD_BIT(KC_LSFT) ||
+            keyboard_report->mods & MOD_BIT(KC_RSFT)) {
+          send_unicode_string("Ü");
+        } else {
+          send_unicode_string("ü");
+        }
+      }
+      return false;
+    case KC_SSS:
+      if (record->event.pressed) {
+        if (keyboard_report->mods & MOD_BIT(KC_LSFT) ||
+            keyboard_report->mods & MOD_BIT(KC_RSFT)) {
+          send_unicode_string("ẞ");
+        } else {
+          send_unicode_string("ß");
+        }
+      }
+      return false;
+
   }
 
   // reset mouse speed to default if no speed button is pressed

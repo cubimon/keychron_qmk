@@ -30,6 +30,7 @@ See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_to
 
 qmk doctor
 -> copy udev rules and restart
+sudo cp util/udev/50-qmk.rules  /etc/udev/rules.d
 
 make keychron/k7_pro/ansi/rgb:cubi
 make keychron/k7_pro/ansi/rgb:cubi:flash
