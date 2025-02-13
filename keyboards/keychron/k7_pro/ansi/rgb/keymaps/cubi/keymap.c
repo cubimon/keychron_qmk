@@ -16,6 +16,7 @@
 
 #include QMK_KEYBOARD_H
 #include "pws.h"
+#include "k7_pro.h"
 
 // clang-format off
 
@@ -76,9 +77,7 @@ struct MouseState {
 
 enum custom_keycodes {
   // mouse
-  // TODO: somehow this isn't safe, so we just add some random offset 512
-  // this should be fine since it is two bytes/up to 65k
-  KC_MOUSE_UP = SAFE_RANGE + 512,
+  KC_MOUSE_UP = NEW_SAFE_RANGE,
   KC_MOUSE_DOWN,
   KC_MOUSE_LEFT,
   KC_MOUSE_RIGHT,
@@ -99,10 +98,6 @@ enum custom_keycodes {
   KC_UUML, // ü
   KC_SSS, // ß
   UC_EURO, // €
-};
-
-const uint32_t PROGMEM unicode_map[] = {
-    [UC_EURO] = 0x20AC, // €
 };
 
 enum layers{
