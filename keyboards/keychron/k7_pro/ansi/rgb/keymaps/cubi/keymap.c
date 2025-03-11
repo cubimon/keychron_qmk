@@ -107,11 +107,11 @@ enum layers{
   MAC_FN1,
   WIN_FN1,
   FN2,
-  META,
   CUBI_ARROW,
   CUBI_MOUSE,
   CUBI_SYMBOL,
   CUBI_FUNCTION,
+  META,
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -157,13 +157,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_TRNS,  DM_REC2,        DM_RSTP,       DM_PLY2,       KC_TRNS,  BAT_LVL,  KC_TRNS,  KC_TRNS,  KC_APP,   KC_RALT,  KC_RCTL,                       KC_TRNS,  KC_TRNS,  KC_TRNS,
      KC_TRNS,  KC_TRNS,        KC_TRNS,                                          KC_TRNS,                                KC_TRNS,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
-[META] = LAYOUT_ansi_68(
-     KC_TRNS,  TO(CUBI_BASE),  TO(MAC_BASE),  TO(WIN_BASE),  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,        KC_TRNS,       KC_TRNS,       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,        KC_TRNS,       KC_TRNS,       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS, KC_TRNS,            KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,        KC_TRNS,       KC_TRNS,       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                     KC_TRNS,  KC_TRNS,  KC_TRNS,
-     KC_TRNS,  KC_TRNS,        KC_TRNS,                                          KC_TRNS,                                KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
-
 // [CUBI_BASE] = LAYOUT_ansi_68(
 //      QK_GRAVE_ESCAPE,        KC_1,            KC_2,           KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,             KC_0,            KC_MINS,                 KC_EQL,  KC_BSPC,           KC_DEL,
 //      LT(CUBI_MOUSE, KC_TAB), KC_Q,            KC_W,           KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,             KC_P,            KC_LBRC,                 KC_RBRC, KC_BSLS,           KC_HOME,
@@ -187,7 +180,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [CUBI_SYMBOL] = LAYOUT_ansi_68(
      KC_TRNS,  QK_UNICODE_MODE_MACOS,           QK_UNICODE_MODE_LINUX, QK_UNICODE_MODE_WINDOWS,  QK_UNICODE_MODE_WINCOMPOSE,  KC_TRNS,  KC_TRNS,  KC_NUM,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,                         KC_KP_7,               KC_KP_8,                  KC_KP_9,                     KC_TRNS,  KC_TRNS,  KC_KP_7,  KC_KP_8,  KC_KP_9,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+     MO(META), KC_TRNS,                         KC_KP_7,               KC_KP_8,                  KC_KP_9,                     KC_TRNS,  KC_TRNS,  KC_KP_7,  KC_KP_8,  KC_KP_9,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
      KC_TRNS,  MO(CUBI_FUNCTION),               KC_KP_4,               KC_KP_5,                  KC_KP_6,                     KC_KP_0,  KC_TRNS,  KC_KP_4,  KC_KP_5,  KC_KP_6,  KC_KP_0,  KC_TRNS,            KC_PSCR,            KC_TRNS,
      KC_TRNS,  KC_TRNS,                         KC_KP_1,               KC_KP_2,                  KC_KP_3,                     KC_TRNS,  KC_TRNS,  KC_KP_1,  KC_KP_2,  KC_KP_3,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,
      KC_TRNS,  KC_TRNS,                         KC_TRNS,                                                                                KC_LCTL,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
@@ -198,6 +191,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_TRNS,  KC_TRNS,  KC_F16,  KC_F17,  KC_F18,  KC_F23,  KC_TRNS,  KC_F4,    KC_F5,   KC_F6,   KC_F11,  KC_TRNS,          KC_TRNS,          KC_TRNS,
      KC_TRNS,  KC_TRNS,  KC_F13,  KC_F14,  KC_F15,  KC_F22,  KC_TRNS,  KC_F1,    KC_F2,   KC_F3,   KC_F10,                    KC_TRNS, KC_TRNS, KC_TRNS,
      KC_TRNS,  KC_TRNS,  KC_TRNS,                            KC_LCTL,                              KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS),
+
+[META] = LAYOUT_ansi_68(
+     KC_TRNS,  TO(CUBI_BASE),  TO(MAC_BASE),  TO(WIN_BASE),  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+     KC_TRNS,  BT_HST1,        BT_HST2,       BT_HST3,       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,        KC_TRNS,       KC_TRNS,       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS, KC_TRNS,            KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,        KC_TRNS,       KC_TRNS,       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                     KC_TRNS,  KC_TRNS,  KC_TRNS,
+     KC_TRNS,  KC_TRNS,        KC_TRNS,                                          KC_TRNS,                                KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
