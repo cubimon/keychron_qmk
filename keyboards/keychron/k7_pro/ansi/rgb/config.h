@@ -16,6 +16,8 @@
 
 #pragma once
 
+#define UNICODE_KEY_INTERVAL 30
+
 #ifdef RGB_MATRIX_ENABLE
 /* RGB Matrix driver configuration */
 #    define DRIVER_COUNT 2

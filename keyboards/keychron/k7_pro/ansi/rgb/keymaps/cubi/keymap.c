@@ -17,6 +17,7 @@
 #include QMK_KEYBOARD_H
 #include "pws.h"
 #include "k7_pro.h"
+#include "print.h"
 
 // clang-format off
 
@@ -75,6 +76,11 @@ struct MouseState {
   0,
 };
 
+static bool uc_active = false;
+static char uc_buf[7];
+static char uc_utf8_str[5];
+static uint8_t uc_len;
+
 enum custom_keycodes {
   // mouse
   KC_MOUSE_UP = NEW_SAFE_RANGE,
@@ -98,6 +104,7 @@ enum custom_keycodes {
   KC_UUML, // ü
   KC_SSS, // ß
   UC_EURO, // €
+  UC_INPUT,
 };
 
 enum layers{
@@ -179,11 +186,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_TRNS,  KC_TRNS,  KC_TRNS,                                                                     KC_MOUSE_BUTTON_LEFT,                                                         KC_TRNS,                KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
 [CUBI_SYMBOL] = LAYOUT_ansi_68(
-     KC_TRNS,  QK_UNICODE_MODE_MACOS,           QK_UNICODE_MODE_LINUX, QK_UNICODE_MODE_WINDOWS,  QK_UNICODE_MODE_WINCOMPOSE,  KC_TRNS,  KC_TRNS,  KC_NUM,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
-     MO(META), KC_TRNS,                         KC_KP_7,               KC_KP_8,                  KC_KP_9,                     KC_TRNS,  KC_TRNS,  KC_KP_7,  KC_KP_8,  KC_KP_9,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  MO(CUBI_FUNCTION),               KC_KP_4,               KC_KP_5,                  KC_KP_6,                     KC_KP_0,  KC_TRNS,  KC_KP_4,  KC_KP_5,  KC_KP_6,  KC_KP_0,  KC_INS,             KC_PSCR,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,                         KC_KP_1,               KC_KP_2,                  KC_KP_3,                     KC_TRNS,  KC_TRNS,  KC_KP_1,  KC_KP_2,  KC_KP_3,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,
-     KC_TRNS,  KC_TRNS,                         KC_TRNS,                                                                                KC_LCTL,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
+     KC_TRNS,  QK_UNICODE_MODE_MACOS,           QK_UNICODE_MODE_LINUX, QK_UNICODE_MODE_WINDOWS,  QK_UNICODE_MODE_WINCOMPOSE,  KC_TRNS,  KC_TRNS,  KC_NUM,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,             KC_TRNS,
+     MO(META), KC_TRNS,                         KC_TRNS,               KC_TRNS,                  KC_TRNS,                     KC_TRNS,  KC_TRNS,  KC_KP_7,  KC_KP_8,  KC_KP_9,  KC_TRNS,  KC_TRNS,  KC_TRNS,  UC_INPUT,            KC_TRNS,
+     KC_TRNS,  MO(CUBI_FUNCTION),               KC_TRNS,               KC_TRNS,                  KC_TRNS,                     KC_TRNS,  KC_TRNS,  KC_KP_4,  KC_KP_5,  KC_KP_6,  KC_KP_0,  KC_INS,             KC_PSCR,             KC_TRNS,
+     KC_TRNS,  KC_TRNS,                         KC_TRNS,               KC_TRNS,                  KC_TRNS,                     KC_TRNS,  KC_TRNS,  KC_KP_1,  KC_KP_2,  KC_KP_3,  KC_TRNS,                      KC_TRNS,  KC_TRNS,   KC_TRNS,
+     KC_TRNS,  KC_TRNS,                         KC_TRNS,                                                                                KC_LCTL,                                KC_TRNS,  KC_TRNS,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
 [CUBI_FUNCTION] = LAYOUT_ansi_68(
      KC_TRNS,  KC_TRNS,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,          KC_TRNS,
@@ -199,6 +206,53 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_TRNS,  KC_TRNS,        KC_TRNS,       KC_TRNS,       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                     KC_TRNS,  KC_TRNS,  KC_TRNS,
      KC_TRNS,  KC_TRNS,        KC_TRNS,                                          KC_TRNS,                                KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 };
+
+void unicode_to_utf8(uint32_t code_point, char *out) {
+  if (code_point <= 0x7F) {
+    // 1-byte ASCII (0x0000 - 0x007F)
+    out[0] = (char)code_point;
+    out[1] = '\0';
+  } else if (code_point <= 0x7FF) {
+    // 2-byte sequence (0x0080 - 0x07FF)
+    out[0] = (char)(0xC0 | ((code_point >> 6) & 0x1F));
+    out[1] = (char)(0x80 | (code_point & 0x3F));
+    out[2] = '\0';
+  } else if (code_point <= 0xFFFF) {
+    // 3-byte sequence (0x0800 - 0xFFFF)
+    out[0] = (char)(0xE0 | ((code_point >> 12) & 0x0F));
+    out[1] = (char)(0x80 | ((code_point >> 6) & 0x3F));
+    out[2] = (char)(0x80 | (code_point & 0x3F));
+    out[3] = '\0';
+  } else if (code_point <= 0x10FFFF) {
+    // 4-byte sequence (0x10000 - 0x10FFFF, includes Emojis)
+    out[0] = (char)(0xF0 | ((code_point >> 18) & 0x07));
+    out[1] = (char)(0x80 | ((code_point >> 12) & 0x3F));
+    out[2] = (char)(0x80 | ((code_point >> 6) & 0x3F));
+    out[3] = (char)(0x80 | (code_point & 0x3F));
+    out[4] = '\0';
+  } else {
+    // Invalid code point
+    out[0] = '\0';
+  }
+}
+
+void send_hex_string_as_unicode(char *hex_str) {
+  // 1. Convert hex string "1F60F" -> integer 0x1F60F
+  uint32_t code_point = (uint32_t) strtoul(hex_str, NULL, 16);
+  // 2. Encode integer to UTF-8
+  unicode_to_utf8(code_point, uc_utf8_str);
+  // for (int i = 0; utf8_str[i] != '\0'; i++) {
+  //   // Safe: prints ASCII representation of hex (0xF0 -> "F0")
+  //   uprintf("%02X ", (unsigned int)(unsigned char)utf8_str[i]);
+  // }
+  // 3. Send to host
+  send_unicode_string(uc_utf8_str);
+}
+
+// void keyboard_post_init_user(void) {
+//     debug_enable = true;
+//     // debug_matrix = true; // Set to true if you want to log keypress matrix events
+// }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   /*if (!process_record_dynamic_macro(keycode, record)) {
@@ -327,13 +381,68 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
       }
       return false;
-
   }
 
   // reset mouse speed to default if no speed button is pressed
   if (mouse_speed_buttons_pressed == 0) {
     mouse_state.time_between_movement = TIME_BETWEEN_MOVEMENT_DEFAULT;
     mouse_state.time_between_wheel_movement = TIME_BETWEEN_WHEEL_MOVEMENT_DEFAULT;
+  }
+
+  // unicode input
+  if (keycode == UC_INPUT) {
+    if (record->event.pressed) {
+      uc_active = !uc_active;
+      if (uc_active) {
+        uc_len = 0;
+      } else if (uc_len > 0) {
+        uc_buf[uc_len] = '\0';
+        send_hex_string_as_unicode(uc_buf);
+      }
+    }
+  }
+
+  if (uc_active && record->event.pressed) {
+    char c = 0;
+    switch(keycode) {
+      case KC_KP_0: c = '0'; break;
+      case KC_KP_1: c = '1'; break;
+      case KC_KP_2: c = '2'; break;
+      case KC_KP_3: c = '3'; break;
+      case KC_KP_4: c = '4'; break;
+      case KC_KP_5: c = '5'; break;
+      case KC_KP_6: c = '6'; break;
+      case KC_KP_7: c = '7'; break;
+      case KC_KP_8: c = '8'; break;
+      case KC_KP_9: c = '9'; break;
+
+      case KC_0: c = '0'; break;
+      case KC_1: c = '1'; break;
+      case KC_2: c = '2'; break;
+      case KC_3: c = '3'; break;
+      case KC_4: c = '4'; break;
+      case KC_5: c = '5'; break;
+      case KC_6: c = '6'; break;
+      case KC_7: c = '7'; break;
+      case KC_8: c = '8'; break;
+      case KC_9: c = '9'; break;
+
+      case KC_A: c = 'A'; break;
+      case KC_B: c = 'B'; break;
+      case KC_C: c = 'C'; break;
+      case KC_D: c = 'D'; break;
+      case KC_E: c = 'E'; break;
+      case KC_F: c = 'F'; break;
+      case KC_BSPC:
+        if (uc_len > 0) {
+            uc_len--;
+        }
+        break;
+    }
+    if (c && uc_len < sizeof(uc_buf) - 1) {
+      uc_buf[uc_len++] = c;
+    }
+    return false;
   }
 
   return true;
