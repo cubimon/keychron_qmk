@@ -78,7 +78,6 @@ struct MouseState {
 
 static bool uc_active = false;
 static char uc_buf[7];
-static char uc_utf8_str[5];
 static uint8_t uc_len;
 
 enum custom_keycodes {
@@ -240,13 +239,13 @@ void send_hex_string_as_unicode(char *hex_str) {
   // 1. Convert hex string "1F60F" -> integer 0x1F60F
   uint32_t code_point = (uint32_t) strtoul(hex_str, NULL, 16);
   // 2. Encode integer to UTF-8
-  unicode_to_utf8(code_point, uc_utf8_str);
+  unicode_to_utf8(code_point, uc_buf);
   // for (int i = 0; utf8_str[i] != '\0'; i++) {
   //   // Safe: prints ASCII representation of hex (0xF0 -> "F0")
   //   uprintf("%02X ", (unsigned int)(unsigned char)utf8_str[i]);
   // }
   // 3. Send to host
-  send_unicode_string(uc_utf8_str);
+  send_unicode_string(uc_buf);
 }
 
 // void keyboard_post_init_user(void) {
