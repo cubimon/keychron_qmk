@@ -16,6 +16,7 @@
 
 #pragma once
 
+#define TAP_CODE_DELAY 30
 #define UNICODE_KEY_INTERVAL 30
 
 #ifdef RGB_MATRIX_ENABLE
