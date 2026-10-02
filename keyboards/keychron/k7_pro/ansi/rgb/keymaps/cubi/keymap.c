@@ -186,9 +186,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [CUBI_SYMBOL] = LAYOUT_ansi_68(
      KC_TRNS,  QK_UNICODE_MODE_MACOS,           QK_UNICODE_MODE_LINUX, QK_UNICODE_MODE_WINDOWS,  QK_UNICODE_MODE_WINCOMPOSE,  KC_TRNS,  KC_TRNS,  KC_NUM,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,             KC_TRNS,
-     MO(META), KC_TRNS,                         KC_TRNS,               KC_TRNS,                  KC_TRNS,                     KC_TRNS,  KC_TRNS,  KC_KP_7,  KC_KP_8,  KC_KP_9,  KC_TRNS,  KC_TRNS,  KC_TRNS,  UC_INPUT,            KC_TRNS,
-     KC_TRNS,  MO(CUBI_FUNCTION),               KC_TRNS,               KC_TRNS,                  KC_TRNS,                     KC_TRNS,  KC_TRNS,  KC_KP_4,  KC_KP_5,  KC_KP_6,  KC_KP_0,  KC_INS,             KC_PSCR,             KC_TRNS,
-     KC_TRNS,  KC_TRNS,                         KC_TRNS,               KC_TRNS,                  KC_TRNS,                     KC_TRNS,  KC_TRNS,  KC_KP_1,  KC_KP_2,  KC_KP_3,  KC_TRNS,                      KC_TRNS,  KC_TRNS,   KC_TRNS,
+     MO(META), KC_TRNS,                         KC_KP_7,               KC_KP_8,                  KC_KP_9,                     KC_TRNS,  KC_TRNS,  KC_KP_7,  KC_KP_8,  KC_KP_9,  KC_TRNS,  KC_TRNS,  KC_TRNS,  UC_INPUT,            KC_TRNS,
+     KC_TRNS,  MO(CUBI_FUNCTION),               KC_KP_5,               KC_KP_5,                  KC_KP_6,                     KC_KP_0,  KC_TRNS,  KC_KP_4,  KC_KP_5,  KC_KP_6,  KC_KP_0,  KC_INS,             KC_PSCR,             KC_TRNS,
+     KC_TRNS,  KC_TRNS,                         KC_KP_1,               KC_KP_2,                  KC_KP_3,                     KC_TRNS,  KC_TRNS,  KC_KP_1,  KC_KP_2,  KC_KP_3,  KC_TRNS,                      KC_TRNS,  KC_TRNS,   KC_TRNS,
      KC_TRNS,  KC_TRNS,                         KC_TRNS,                                                                                KC_LCTL,                                KC_TRNS,  KC_TRNS,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
 [CUBI_FUNCTION] = LAYOUT_ansi_68(
