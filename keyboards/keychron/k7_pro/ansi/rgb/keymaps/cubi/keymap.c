@@ -110,6 +110,7 @@ enum layers{
   MAC_BASE,
   WIN_BASE,
   CUBI_BASE,
+  UC_BASE,
   MAC_FN1,
   WIN_FN1,
   FN2,
@@ -141,6 +142,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      MO(CUBI_SYMBOL),        KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     LT(CUBI_ARROW, KC_SCLN),  LT(CUBI_ARROW, KC_QUOT),          KC_ENT,           KC_PGUP,
      LSFT_T(KC_ESC),         KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,                                                    KC_RSFT, KC_UP,   KC_PGDN,
      KC_LCTL,                KC_LGUI,  KC_LALT,                                KC_SPC,                                 KC_RALT,                  MO(MAC_FN1),             MO(FN2), KC_LEFT, KC_DOWN, KC_RGHT),
+
+[UC_BASE] = LAYOUT_ansi_68(
+     KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,    KC_NO,    KC_NO,   KC_NO,   KC_NO, KC_NO, KC_NO,           KC_NO,
+     KC_NO, KC_NO, KC_NO, KC_E,  KC_NO, KC_NO, KC_NO, KC_KP_7,  KC_KP_8,  KC_KP_9, KC_NO,   KC_NO, KC_NO, UC_INPUT,        KC_NO,
+     KC_NO, KC_A,  KC_NO, KC_D,  KC_F,  KC_NO, KC_NO, KC_KP_4,  KC_KP_5,  KC_KP_6, KC_KP_0, KC_NO,        KC_NO,           KC_NO,
+     KC_NO, KC_NO, KC_NO, KC_C,  KC_NO, KC_B,  KC_NO, KC_KP_1,  KC_KP_2,  KC_KP_3, KC_NO,                 KC_NO,    KC_NO, KC_NO,
+     KC_NO, KC_NO, KC_NO,                      KC_NO,                              KC_NO,   KC_NO, KC_NO, KC_NO,    KC_NO, KC_NO),
 
 [MAC_FN1] = LAYOUT_ansi_68(
      KC_GRV,   KC_BRID,  KC_BRIU,  KC_MCTL,  KC_LPAD,  RGB_VAD,  RGB_VAI,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,  KC_VOLU,  KC_TRNS,            RGB_TOG,
@@ -393,10 +401,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
       uc_active = !uc_active;
       if (uc_active) {
+        set_single_persistent_default_layer(UC_BASE);
+        layer_off(CUBI_SYMBOL);
         uc_len = 0;
       } else if (uc_len > 0) {
         uc_buf[uc_len] = '\0';
         send_hex_string_as_unicode(uc_buf);
+        set_single_persistent_default_layer(CUBI_BASE);
+        return false;
       }
     }
   }
